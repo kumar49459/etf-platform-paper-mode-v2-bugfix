@@ -1,0 +1,18 @@
+# Live trading environment overrides.
+# Per Phase 1 §12.5 (Module 24, Compliance & Regulatory Engine): live trading
+# on Indian exchanges requires a registered static IP and Algo ID with the
+# broker. This file does not itself enforce that — the Compliance Engine
+# (Phase 5+) does — but the AWS region below reflects the broker-preferred
+# hosting posture already agreed in Phase 1 §7 and §12.5.
+
+logging:
+  level: INFO
+  json_format: true    # structured logs for CloudWatch ingestion in production
+
+secrets:
+  provider: aws
+  aws_secret_name: etf-platform/live/kite-credentials
+  aws_region: ap-south-1
+
+data_engine:
+  halt_on_critical_quality_issue: true   # never relax this in live

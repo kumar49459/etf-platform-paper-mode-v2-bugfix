@@ -1,0 +1,6 @@
+# Paper trading environment overrides.
+logging:
+  level: INFO
+
+secrets:
+  provider: local

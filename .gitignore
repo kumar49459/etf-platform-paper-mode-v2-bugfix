@@ -1,0 +1,20 @@
+# Data and secrets — never committed
+data/
+logs/
+*.db
+*.db-wal
+*.db-shm
+config/.secrets.enc
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Editors
+.vscode/
+.idea/

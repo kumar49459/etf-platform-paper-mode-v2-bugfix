@@ -1,0 +1,11 @@
+# Full dependency set for the on-demand/research instance and local
+# development (backtesting, optimization, AI research - Phase 1 §12.1;
+# also required by src/etf_platform/etf_optimizer/ - Phase 3, and
+# src/etf_platform/backtesting/, performance_analytics/, validation/ - Phase 4).
+-r requirements-live.txt
+numpy>=1.26
+scipy>=1.11
+pandas>=2.0
+pyarrow>=14.0
+boto3>=1.28
+pytest>=7.4

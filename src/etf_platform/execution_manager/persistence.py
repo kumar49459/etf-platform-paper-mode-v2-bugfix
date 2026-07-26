@@ -1,0 +1,265 @@
+"""Persistence for Module 28 (PHASE7_Objectives.md section 5) - extends
+the already-approved but never-implemented section 16.7 schema
+(cash_ledger, investment_queue, execution_history) with the order-lifecycle
+columns, plus two new mechanisms found during the Design Readiness Review:
+
+1. Concurrent-invocation mutual exclusion (cycle_claims table) - section
+   8.8. Reconciliation alone protects against crash-then-restart; it does
+   NOT protect against two invocations running at the same moment. A
+   cycle_id claim, enforced by SQLite's PRIMARY KEY constraint (atomic
+   even across separate OS processes, not just threads within one), is
+   what closes that gap.
+
+2. Database corruption detection (PRAGMA integrity_check on connect) -
+   section 8.9. If the local file is corrupted, this store refuses to
+   proceed silently - it raises DatabaseCorruptionError, and the caller
+   (a later milestone's ReconciliationService) rebuilds state entirely
+   from the broker, since the broker is always the source of truth
+   (Decision 1) and a corrupted local file must never be trusted or
+   "repaired" in place.
+
+Same WAL+lock pattern as every registry since Phase 2, with
+PRAGMA synchronous=FULL (Phase 6's power-failure durability fix, reused
+here for the same reason: this store gates real investment decisions, and
+the fsync cost is negligible at this write frequency).
+"""
+
+from __future__ import annotations
+
+import threading
+import uuid
+from datetime import datetime
+import sqlite3
+
+from etf_platform.common import db
+from etf_platform.common.logging_setup import get_logger
+from etf_platform.execution_manager.exceptions import ConcurrentInvocationError, DatabaseCorruptionError
+from etf_platform.execution_manager.models import ExecutionRecord, OrderLifecycleState
+from etf_platform.execution_manager.timezone_utils import require_aware, to_utc, utc_now
+
+logger = get_logger("execution_manager.persistence")
+
+_SCHEMA_STATEMENTS = (
+    """
+    CREATE TABLE IF NOT EXISTS cash_ledger (
+        entry_id TEXT PRIMARY KEY,
+        timestamp TEXT NOT NULL,
+        transaction_type TEXT NOT NULL,
+        amount REAL NOT NULL,
+        running_balance REAL,
+        queue_id TEXT,
+        notes TEXT
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS investment_queue (
+        queue_id TEXT PRIMARY KEY,
+        deposit_date TEXT NOT NULL,
+        amount REAL NOT NULL,
+        source TEXT NOT NULL,
+        remaining_balance REAL NOT NULL,
+        status TEXT NOT NULL
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS execution_history (
+        execution_id TEXT PRIMARY KEY,
+        queue_id TEXT,
+        cycle_id TEXT NOT NULL,
+        symbol TEXT NOT NULL,
+        quantity_proposed INTEGER NOT NULL,
+        quantity_final INTEGER,
+        limit_price REAL NOT NULL,
+        order_status TEXT NOT NULL,
+        broker_order_id TEXT,
+        executed_price REAL,
+        executed_quantity INTEGER NOT NULL DEFAULT 0,
+        is_paper_trade INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        last_status_check TEXT,
+        priority_rank INTEGER NOT NULL,
+        notes TEXT
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS cycle_claims (
+        cycle_id TEXT PRIMARY KEY,
+        claimed_at TEXT NOT NULL,
+        claimed_by TEXT NOT NULL
+    )
+    """,
+)
+
+DEFAULT_MAX_CLAIM_AGE_SECONDS = 900
+"""A claim older than this is considered abandoned (its holder crashed
+without releasing it) and may be reclaimed. Provisional, disclosed value -
+same honesty standard as every other provisional parameter in this
+platform."""
+
+
+def _parse_iso(value):
+    return datetime.fromisoformat(value)
+
+
+def new_execution_id():
+    return f"exec-{uuid.uuid4().hex[:16]}"
+
+
+def _row_to_execution_record(row):
+    return ExecutionRecord(
+        execution_id=row["execution_id"], queue_id=row["queue_id"], cycle_id=row["cycle_id"],
+        symbol=row["symbol"], quantity_proposed=row["quantity_proposed"], quantity_final=row["quantity_final"],
+        limit_price=row["limit_price"], order_status=OrderLifecycleState(row["order_status"]),
+        broker_order_id=row["broker_order_id"], executed_price=row["executed_price"],
+        executed_quantity=row["executed_quantity"], is_paper_trade=bool(row["is_paper_trade"]),
+        created_at=to_utc(_parse_iso(row["created_at"])),
+        last_status_check=to_utc(_parse_iso(row["last_status_check"])) if row["last_status_check"] else None,
+        priority_rank=row["priority_rank"],
+        notes=tuple(row["notes"].split("|")) if row["notes"] else (),
+    )
+
+
+class ExecutionStateStore:
+    def __init__(self, db_path):
+        self._lock = threading.Lock()
+        try:
+            self._conn = db.connect(db_path)
+        except sqlite3.DatabaseError as exc:
+            # Found via adversarial testing: a file corrupted badly enough
+            # to fail even the initial connect/PRAGMA calls (not just
+            # integrity_check) raises a raw sqlite3.DatabaseError before
+            # our own check ever runs. Wrapping here means callers get a
+            # single, consistent DatabaseCorruptionError regardless of how
+            # severely the file is damaged, rather than needing to catch
+            # two different exception types depending on corruption degree.
+            raise DatabaseCorruptionError(
+                f"Could not open database at {db_path}: {exc}. The local database is unreadable, "
+                "which is at least as severe as failing an integrity check. Do not attempt to repair "
+                "or trust this file -- rebuild state entirely from broker reconciliation "
+                "(Decision 1: the broker is always the source of truth)."
+            ) from exc
+        with self._lock:
+            self._conn.execute("PRAGMA synchronous=FULL;")
+        self._check_integrity()
+        with self._lock, db.transaction(self._conn):
+            for statement in _SCHEMA_STATEMENTS:
+                self._conn.execute(statement)
+
+    def _check_integrity(self):
+        with self._lock:
+            result = self._conn.execute("PRAGMA integrity_check;").fetchone()[0]
+        if result != "ok":
+            raise DatabaseCorruptionError(
+                f"PRAGMA integrity_check reported: {result!r}. The local database is corrupted. "
+                "Do not attempt to repair or trust this file -- rebuild state entirely from broker "
+                "reconciliation (Decision 1: the broker is always the source of truth)."
+            )
+
+    # ------------------------------------------------------------------
+    # Concurrent-invocation mutual exclusion
+    # ------------------------------------------------------------------
+    def claim_cycle(self, cycle_id, claimed_by, max_claim_age_seconds=DEFAULT_MAX_CLAIM_AGE_SECONDS):
+        now = utc_now()
+        with self._lock, db.transaction(self._conn):
+            existing = self._conn.execute(
+                "SELECT claimed_at, claimed_by FROM cycle_claims WHERE cycle_id = ?", (cycle_id,)
+            ).fetchone()
+            if existing is not None:
+                existing_claimed_at = to_utc(_parse_iso(existing["claimed_at"]))
+                age_seconds = (now - existing_claimed_at).total_seconds()
+                if age_seconds < max_claim_age_seconds:
+                    raise ConcurrentInvocationError(
+                        f"Cycle {cycle_id} is already claimed by {existing['claimed_by']!r} "
+                        f"{age_seconds:.0f}s ago (still within the {max_claim_age_seconds}s freshness "
+                        "window) -- refusing to proceed. This is the mutual-exclusion mechanism working "
+                        "correctly, not a bug."
+                    )
+                logger.warning(
+                    "Reclaiming cycle %s: previous claim by %r is %.0fs old (stale, exceeds %ds threshold).",
+                    cycle_id, existing["claimed_by"], age_seconds, max_claim_age_seconds,
+                )
+                self._conn.execute("DELETE FROM cycle_claims WHERE cycle_id = ?", (cycle_id,))
+            self._conn.execute(
+                "INSERT INTO cycle_claims (cycle_id, claimed_at, claimed_by) VALUES (?, ?, ?)",
+                (cycle_id, now.isoformat(), claimed_by),
+            )
+        logger.info("Cycle %s claimed by %r.", cycle_id, claimed_by)
+
+    def release_cycle(self, cycle_id):
+        with self._lock, db.transaction(self._conn):
+            self._conn.execute("DELETE FROM cycle_claims WHERE cycle_id = ?", (cycle_id,))
+        logger.info("Cycle %s claim released.", cycle_id)
+
+    def is_claimed(self, cycle_id, max_claim_age_seconds=DEFAULT_MAX_CLAIM_AGE_SECONDS):
+        with self._lock:
+            existing = self._conn.execute(
+                "SELECT claimed_at FROM cycle_claims WHERE cycle_id = ?", (cycle_id,)
+            ).fetchone()
+        if existing is None:
+            return False
+        age_seconds = (utc_now() - to_utc(_parse_iso(existing["claimed_at"]))).total_seconds()
+        return age_seconds < max_claim_age_seconds
+
+    # ------------------------------------------------------------------
+    # Execution history (the order lifecycle)
+    # ------------------------------------------------------------------
+    def save_execution_record(self, record):
+        require_aware(record.created_at, "record.created_at")
+        with self._lock, db.transaction(self._conn):
+            self._conn.execute(
+                """
+                INSERT INTO execution_history
+                    (execution_id, queue_id, cycle_id, symbol, quantity_proposed, quantity_final,
+                     limit_price, order_status, broker_order_id, executed_price, executed_quantity,
+                     is_paper_trade, created_at, last_status_check, priority_rank, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(execution_id) DO UPDATE SET
+                    quantity_final = excluded.quantity_final,
+                    order_status = excluded.order_status,
+                    broker_order_id = excluded.broker_order_id,
+                    executed_price = excluded.executed_price,
+                    executed_quantity = excluded.executed_quantity,
+                    last_status_check = excluded.last_status_check,
+                    notes = excluded.notes
+                """,
+                (
+                    record.execution_id, record.queue_id, record.cycle_id, record.symbol,
+                    record.quantity_proposed, record.quantity_final, record.limit_price,
+                    record.order_status.value, record.broker_order_id, record.executed_price,
+                    record.executed_quantity, int(record.is_paper_trade), record.created_at.isoformat(),
+                    record.last_status_check.isoformat() if record.last_status_check else None,
+                    record.priority_rank, "|".join(record.notes),
+                ),
+            )
+        logger.info(
+            "Persisted execution_history: execution_id=%s cycle_id=%s symbol=%s status=%s",
+            record.execution_id, record.cycle_id, record.symbol, record.order_status.value,
+        )
+
+    def load_execution_record(self, execution_id):
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT * FROM execution_history WHERE execution_id = ?", (execution_id,)
+            ).fetchone()
+        return _row_to_execution_record(row) if row else None
+
+    def load_records_for_cycle(self, cycle_id):
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM execution_history WHERE cycle_id = ? ORDER BY priority_rank ASC", (cycle_id,)
+            ).fetchall()
+        return [_row_to_execution_record(r) for r in rows]
+
+    def load_unresolved_records(self):
+        unresolved_states = tuple(s.value for s in OrderLifecycleState if s != OrderLifecycleState.RECONCILED)
+        placeholders = ",".join("?" for _ in unresolved_states)
+        with self._lock:
+            rows = self._conn.execute(
+                f"SELECT * FROM execution_history WHERE order_status IN ({placeholders})",
+                unresolved_states,
+            ).fetchall()
+        return [_row_to_execution_record(r) for r in rows]
+
+    def close(self):
+        with self._lock:
+            self._conn.close()

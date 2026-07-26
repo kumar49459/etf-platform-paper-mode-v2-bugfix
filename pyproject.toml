@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "etf-platform"
+version = "0.2.0"
+description = "Institutional-grade ETF Investment Platform (India) — Phase 2: Historical Data Engine, Data Quality Validator, Configuration Manager, Secrets Manager"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31",
+    "PyYAML>=6.0",
+    "cryptography>=41.0",
+]
+
+[project.optional-dependencies]
+# Research/on-demand instance only — deliberately NOT part of core deps so
+# the live micro instance's install stays minimal (Phase 1 §12.1).
+research = [
+    "pandas>=2.0",
+    "pyarrow>=14.0",
+]
+aws = [
+    "boto3>=1.28",
+]
+dev = [
+    "pandas>=2.0",
+    "pyarrow>=14.0",
+    "boto3>=1.28",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"

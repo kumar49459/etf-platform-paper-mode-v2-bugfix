@@ -1,0 +1,36 @@
+# Base configuration — shared defaults across all environments.
+# Environment-specific files (dev.yaml, paper.yaml, live.yaml) override only
+# what needs to differ. See ConfigManager for merge order.
+
+data_engine:
+  primary_provider: nse
+  secondary_provider: kite
+  storage_backend: auto        # auto picks parquet if pyarrow is installed, else csv
+  storage_path: ./data/processed
+  snapshot_registry_db: ./data/snapshots.db
+  halt_on_critical_quality_issue: true
+  max_price_jump_pct: 20.0     # single-day move beyond this, without a matching
+                                # corporate action, is flagged CRITICAL
+  stale_price_max_days: 10     # consecutive identical closes beyond this is WARNING
+  rate_limits:
+    nse:
+      calls_per_second: 2.0
+      calls_per_minute: 30.0
+    kite:
+      calls_per_second: 3.0
+      calls_per_minute: 180.0
+
+database:
+  sqlite_path: ./data/platform.db
+  busy_timeout_seconds: 30.0
+
+secrets:
+  provider: local
+  local_key_env_var: ETF_PLATFORM_MASTER_KEY
+  local_secrets_file: ./config/.secrets.enc
+  aws_region: ap-south-1
+
+logging:
+  level: INFO
+  log_dir: ./logs
+  json_format: false

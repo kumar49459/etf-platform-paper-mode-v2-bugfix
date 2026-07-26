@@ -1,0 +1,7 @@
+# Minimal dependency set for the always-on EC2 micro instance.
+# Deliberately excludes pandas/pyarrow/boto3 — see PHASE1 §12.1 (binding
+# constraint: live instance runtime dependencies must stay minimal) and
+# pyproject.toml's [project.optional-dependencies] split.
+requests>=2.31
+PyYAML>=6.0
+cryptography>=41.0

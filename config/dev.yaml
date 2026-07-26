@@ -1,0 +1,6 @@
+# Development environment overrides.
+logging:
+  level: DEBUG
+
+secrets:
+  provider: local

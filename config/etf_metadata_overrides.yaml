@@ -1,0 +1,87 @@
+# ETF metadata overrides — supplements HistoricalDataEngine's instrument
+# master with fields NSE/Kite don't provide (asset_class, index_tracked,
+# issuer, expense_ratio, AUM). See docs/PHASE3_ETF_Universe_Optimizer.md
+# for the full rationale.
+#
+# HONEST LIMITATION: expense_ratio, tracking_error_pct, and aum_crores are
+# left null throughout this file. expense_ratio and aum_crores come from
+# AMFI/fund-house factsheets, which this sandbox has no network access to
+# fetch, and AUM specifically changes daily — a number seeded once here
+# would be stale within days regardless. tracking_error_pct requires a
+# benchmark index price series, which Phase 2's Data Engine does not fetch
+# (it fetches ETF prices, not the underlying index level) — wiring that up
+# is a documented follow-up, not done here. Before using
+# ETFUniverseOptimizer's scoring for a real decision, populate whichever of
+# these fields you can from a real feed. Until then, the scoring engine
+# treats missing values as "unknown, excluded from that metric" rather than
+# silently as zero — see scoring.py.
+#
+# asset_class and index_tracked ARE populated where confidently known —
+# these are stable facts (an ETF's tracked index doesn't change day to day)
+# and don't need a live feed to be correct as of this writing.
+
+etfs:
+  NIFTYBEES:
+    name: "Nippon India ETF Nifty BeES"
+    issuer: "Nippon India Mutual Fund"
+    asset_class: "equity_large_cap"
+    index_tracked: "NIFTY 50"
+    expense_ratio: null
+    aum_crores: null
+    aum_as_of: null
+
+  JUNIORBEES:
+    name: "Nippon India ETF Nifty Next 50 Junior BeES"
+    issuer: "Nippon India Mutual Fund"
+    asset_class: "equity_large_cap_extended"
+    index_tracked: "NIFTY Next 50"
+    expense_ratio: null
+    aum_crores: null
+    aum_as_of: null
+
+  GOLDBEES:
+    name: "Nippon India ETF Gold BeES"
+    issuer: "Nippon India Mutual Fund"
+    asset_class: "gold"
+    index_tracked: "Domestic physical gold price"
+    expense_ratio: null
+    aum_crores: null
+    aum_as_of: null
+
+  MON100:
+    name: "Motilal Oswal NASDAQ 100 ETF"
+    issuer: "Motilal Oswal Asset Management"
+    asset_class: "international_equity"
+    index_tracked: "NASDAQ 100"
+    expense_ratio: null
+    aum_crores: null
+    aum_as_of: null
+
+  HDFCSML250:
+    name: "HDFC NIFTY Smallcap 250 ETF"
+    issuer: "HDFC Asset Management"
+    asset_class: "equity_small_cap"
+    index_tracked: "NIFTY Smallcap 250"
+    expense_ratio: null
+    aum_crores: null
+    aum_as_of: null
+
+  MOMIDMTM:
+    name: null
+    issuer: "Motilal Oswal Asset Management"
+    asset_class: null
+    index_tracked: null
+    expense_ratio: null
+    aum_crores: null
+    aum_as_of: null
+    needs_verification: true
+    notes: >
+      Could not confidently verify this exact ticker's tracked index against
+      available sources during Phase 3 build (Motilal Oswal's midcap ETF
+      tickers are reported inconsistently across data vendors — MOM100 vs
+      MOMIDMTM vs similar). Verify directly against the NSE instrument
+      master or Motilal Oswal's factsheet before relying on this symbol's
+      category classification for screening or replacement-evidence
+      comparisons — until verified, this symbol will be excluded from
+      category-based comparisons by UniverseScreeningEngine (see
+      screening_engine.py's handling of asset_class=null).
