@@ -43,3 +43,14 @@ class SystemStatus:
             status["database"] = "🔴 Error"
 
         return status
+    def database_connected(self):
+        return self.get_status()["database"] == "🟢 Connected"
+
+    def total_orders(self):
+        return self.get_status()["orders"]
+
+    def reconciled_orders(self):
+        return self.get_status()["filled"]
+
+    def pending_orders(self):
+        return self.get_status()["pending"]
