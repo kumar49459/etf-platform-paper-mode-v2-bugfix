@@ -1,0 +1,48 @@
+2026-07-26 15:56:17 | INFO     | etf_platform.paper_trading_operations.paper_runner | PaperRunner starting. Environment=dev, config_version=ab92b1d3489a5d2e -- NO Kite credentials required.
+2026-07-26 16:02:51 | INFO     | etf_platform.paper_trading_operations.paper_runner | PaperRunner starting. Environment=dev, config_version=ab92b1d3489a5d2e -- NO Kite credentials required.
+2026-07-26 16:02:51 | WARNING  | etf_platform.paper_trading_operations.paper_runner | Telegram unavailable this session (Environment variable 'ETF_PLATFORM_MASTER_KEY' is not set. Generate a key with LocalEncryptedFileProvider.generate_key() and set it before starting the process. Never commit this key to source control.) -- paper mode will start without notifications. This is allowed in paper mode; it would NOT be allowed in ProductionRunner.
+2026-07-26 16:02:51 | DEBUG    | etf_platform.common.db | Opened SQLite connection to data/paper_execution_state.db (WAL mode)
+2026-07-26 16:02:51 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode startup reconciliation complete: 0 record(s) checked.
+2026-07-26 16:02:51 | INFO     | etf_platform.paper_trading_operations.paper_runner | (No Telegram notifier configured for this paper session) [PAPER MODE STARTUP] PaperRunner started. Environment=dev. Starting cash: 10000000.0. No real broker involved. Reconciliation checked 0 record(s).
+2026-07-26 16:02:51 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode startup complete.
+2026-07-26 16:07:45 | INFO     | etf_platform.paper_trading_operations.paper_runner | Received signal 2, requesting graceful shutdown.
+2026-07-26 16:07:46 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode shutting down.
+2026-07-26 16:07:46 | INFO     | etf_platform.paper_trading_operations.paper_runner | (No Telegram notifier configured for this paper session) [PAPER MODE SHUTDOWN] PaperRunner shutting down.
+2026-07-26 16:07:46 | INFO     | etf_platform.paper_trading_operations.paper_runner | Archived 2 paper-mode event(s) before shutdown.
+2026-07-26 16:07:46 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode shutdown complete.
+2026-07-26 16:16:53 | INFO     | etf_platform.paper_trading_operations.paper_runner | PaperRunner starting. Environment=dev, config_version=ab92b1d3489a5d2e -- NO Kite credentials required.
+2026-07-26 16:16:53 | WARNING  | etf_platform.paper_trading_operations.paper_runner | Telegram unavailable this session (Environment variable 'ETF_PLATFORM_MASTER_KEY' is not set. Generate a key with LocalEncryptedFileProvider.generate_key() and set it before starting the process. Never commit this key to source control.) -- paper mode will start without notifications. This is allowed in paper mode; it would NOT be allowed in ProductionRunner.
+2026-07-26 16:16:53 | DEBUG    | etf_platform.common.db | Opened SQLite connection to data/paper_execution_state.db (WAL mode)
+2026-07-26 16:16:53 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode startup reconciliation complete: 0 record(s) checked.
+2026-07-26 16:16:53 | INFO     | etf_platform.paper_trading_operations.paper_runner | (No Telegram notifier configured for this paper session) [PAPER MODE STARTUP] PaperRunner started. Environment=dev. Starting cash: 10000000.0. No real broker involved. Reconciliation checked 0 record(s).
+2026-07-26 16:16:53 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode startup complete.
+2026-07-26 16:20:10 | INFO     | etf_platform.paper_trading_operations.paper_runner | Received signal 2, requesting graceful shutdown.
+2026-07-26 16:20:10 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode shutting down.
+2026-07-26 16:20:10 | INFO     | etf_platform.paper_trading_operations.paper_runner | (No Telegram notifier configured for this paper session) [PAPER MODE SHUTDOWN] PaperRunner shutting down.
+2026-07-26 16:20:10 | INFO     | etf_platform.paper_trading_operations.paper_runner | Archived 2 paper-mode event(s) before shutdown.
+2026-07-26 16:20:10 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode shutdown complete.
+2026-07-27 20:54:38 | INFO     | etf_platform.paper_trading_operations.paper_runner | PaperRunner starting. Environment=dev, config_version=ab92b1d3489a5d2e -- NO Kite credentials required.
+2026-07-27 20:54:38 | WARNING  | etf_platform.paper_trading_operations.paper_runner | Telegram unavailable this session (Environment variable 'ETF_PLATFORM_MASTER_KEY' is not set. Generate a key with LocalEncryptedFileProvider.generate_key() and set it before starting the process. Never commit this key to source control.) -- paper mode will start without notifications. This is allowed in paper mode; it would NOT be allowed in ProductionRunner.
+2026-07-27 20:54:38 | DEBUG    | etf_platform.common.db | Opened SQLite connection to data/paper_execution_state.db (WAL mode)
+2026-07-27 20:54:38 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode startup reconciliation complete: 0 record(s) checked.
+2026-07-27 20:54:38 | INFO     | etf_platform.paper_trading_operations.paper_runner | (No Telegram notifier configured for this paper session) [PAPER MODE STARTUP] PaperRunner started. Environment=dev. Starting cash: 10000000.0. No real broker involved. Reconciliation checked 0 record(s).
+2026-07-27 20:54:38 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode startup complete.
+2026-07-27 20:57:22 | INFO     | etf_platform.paper_trading_operations.paper_runner | Received signal 2, requesting graceful shutdown.
+2026-07-27 20:57:22 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode shutting down.
+2026-07-27 20:57:22 | INFO     | etf_platform.paper_trading_operations.paper_runner | (No Telegram notifier configured for this paper session) [PAPER MODE SHUTDOWN] PaperRunner shutting down.
+2026-07-27 20:57:22 | INFO     | etf_platform.paper_trading_operations.paper_runner | Archived 2 paper-mode event(s) before shutdown.
+2026-07-27 20:57:22 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode shutdown complete.
+2026-07-27 21:32:34 | INFO     | etf_platform.paper_trading_operations.paper_runner | PaperRunner starting. Environment=dev, config_version=ab92b1d3489a5d2e -- NO Kite credentials required.
+2026-07-27 21:32:34 | WARNING  | etf_platform.paper_trading_operations.paper_runner | Telegram unavailable this session (Environment variable 'ETF_PLATFORM_MASTER_KEY' is not set. Generate a key with LocalEncryptedFileProvider.generate_key() and set it before starting the process. Never commit this key to source control.) -- paper mode will start without notifications. This is allowed in paper mode; it would NOT be allowed in ProductionRunner.
+2026-07-27 21:32:34 | DEBUG    | etf_platform.common.db | Opened SQLite connection to data/paper_execution_state.db (WAL mode)
+2026-07-27 21:32:34 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode startup reconciliation complete: 0 record(s) checked.
+2026-07-27 21:32:34 | INFO     | etf_platform.paper_trading_operations.paper_runner | (No Telegram notifier configured for this paper session) [PAPER MODE STARTUP] PaperRunner started. Environment=dev. Starting cash: 10000000.0. No real broker involved. Reconciliation checked 0 record(s).
+2026-07-27 21:32:34 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode startup complete.
+2026-07-27 21:43:41 | INFO     | etf_platform.paper_trading_operations.paper_runner | Received signal 2, requesting graceful shutdown.
+2026-07-27 21:43:42 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode shutting down.
+2026-07-27 21:43:42 | INFO     | etf_platform.paper_trading_operations.paper_runner | (No Telegram notifier configured for this paper session) [PAPER MODE SHUTDOWN] PaperRunner shutting down.
+2026-07-27 21:43:42 | INFO     | etf_platform.paper_trading_operations.paper_runner | Archived 2 paper-mode event(s) before shutdown.
+2026-07-27 21:43:42 | INFO     | etf_platform.paper_trading_operations.paper_runner | Paper mode shutdown complete.
+2026-07-29 19:21:52,992 | INFO | ETF Platform started.
+2026-07-29 19:21:52,992 | WARNING | Sample warning.
+2026-07-29 19:21:52,992 | ERROR | Sample error.

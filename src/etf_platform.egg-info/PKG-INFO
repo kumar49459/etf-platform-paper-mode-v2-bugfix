@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: etf-platform
+Version: 0.2.0
+Summary: Institutional-grade ETF Investment Platform (India) — Phase 2: Historical Data Engine, Data Quality Validator, Configuration Manager, Secrets Manager
+Requires-Python: >=3.11
+Requires-Dist: requests>=2.31
+Requires-Dist: PyYAML>=6.0
+Requires-Dist: cryptography>=41.0
+Provides-Extra: research
+Requires-Dist: pandas>=2.0; extra == "research"
+Requires-Dist: pyarrow>=14.0; extra == "research"
+Provides-Extra: aws
+Requires-Dist: boto3>=1.28; extra == "aws"
+Provides-Extra: dev
+Requires-Dist: pandas>=2.0; extra == "dev"
+Requires-Dist: pyarrow>=14.0; extra == "dev"
+Requires-Dist: boto3>=1.28; extra == "dev"
