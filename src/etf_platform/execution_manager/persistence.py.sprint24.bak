@@ -260,14 +260,6 @@ class ExecutionStateStore:
             ).fetchall()
         return [_row_to_execution_record(r) for r in rows]
 
-    def load_reconciled_records(self):
-        with self._lock:
-            rows = self._conn.execute(
-                "SELECT * FROM execution_history WHERE order_status = ?",
-                (OrderLifecycleState.RECONCILED.value,),
-            ).fetchall()
-        return [_row_to_execution_record(r) for r in rows]
-
     def close(self):
         with self._lock:
             self._conn.close()

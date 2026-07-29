@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ETF Platform</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f9;
+margin:40px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.value{
+font-size:30px;
+font-weight:bold;
+margin-top:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>ETF Platform Dashboard</h1>
+
+<div class="grid">
+
+<div class="card">
+<h3>CAGR</h3>
+<div class="value">18.5%</div>
+</div>
+
+<div class="card">
+<h3>XIRR</h3>
+<div class="value">17.8%</div>
+</div>
+
+<div class="card">
+<h3>Sharpe</h3>
+<div class="value">1.42</div>
+</div>
+
+<div class="card">
+<h3>Sortino</h3>
+<div class="value">2.08</div>
+</div>
+
+<div class="card">
+<h3>Calmar</h3>
+<div class="value">1.49</div>
+</div>
+
+<div class="card">
+<h3>Max Drawdown</h3>
+<div class="value">12.4%</div>
+</div>
+
+</div>
+
+<p style="margin-top:40px">
+<a href="dashboard.html">Open Detailed Dashboard</a>
+</p>
+
+</body>
+</html>

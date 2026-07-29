@@ -1,0 +1,66 @@
+"""
+Portfolio Reconciliation Engine
+
+Builds a Portfolio object from execution_history.
+
+This module intentionally separates portfolio construction from:
+- Broker
+- Orchestrator
+- Dashboard
+
+Execution history remains the source of truth.
+"""
+
+from etf_platform.execution_manager.models import OrderLifecycleState
+from etf_platform.portfolio.portfolio_manager import Portfolio
+
+
+class PortfolioReconciliation:
+
+    def __init__(self, execution_store):
+        self._store = execution_store
+
+    def build_portfolio(self):
+        portfolio = Portfolio()
+
+        records = self._store.load_reconciled_records()
+
+        for record in records:
+
+            if record.order_status != OrderLifecycleState.RECONCILED:
+                continue
+
+            if record.executed_quantity <= 0:
+                continue
+
+            symbol = record.symbol
+
+            qty = record.executed_quantity
+
+            price = record.executed_price or record.limit_price
+
+            if symbol not in portfolio.holdings:
+
+                portfolio.add_holding(
+                    symbol=symbol,
+                    quantity=qty,
+                    average_price=price,
+                    current_price=price,
+                )
+
+            else:
+
+                holding = portfolio.holdings[symbol]
+
+                total_qty = holding.quantity + qty
+
+                total_cost = (
+                    holding.quantity * holding.average_price
+                    + qty * price
+                )
+
+                holding.quantity = total_qty
+                holding.average_price = total_cost / total_qty
+                holding.current_price = price
+
+        return portfolio

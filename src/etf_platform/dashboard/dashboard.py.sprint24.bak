@@ -1,11 +1,7 @@
-from pathlib import Path
-
 from src.etf_platform.market.market_status import MarketStatus
 from src.etf_platform.market.market_data import MarketData
 from src.etf_platform.system.status import SystemStatus
 from src.etf_platform.portfolio.portfolio_manager import Portfolio
-from src.etf_platform.portfolio.portfolio_reconciliation import PortfolioReconciliation
-from src.etf_platform.execution_manager.persistence import ExecutionStateStore
 
 
 class Dashboard:
@@ -14,17 +10,7 @@ class Dashboard:
         self.market = MarketStatus()
         self.market_data = MarketData()
         self.status = SystemStatus()
-
-        db_path = Path("data/paper_simulation.db")
-
-        if db_path.exists():
-            try:
-                store = ExecutionStateStore(str(db_path))
-                self.portfolio = PortfolioReconciliation(store).build_portfolio()
-            except Exception:
-                self.portfolio = Portfolio()
-        else:
-            self.portfolio = Portfolio()
+        self.portfolio = Portfolio()
 
     def show(self):
 

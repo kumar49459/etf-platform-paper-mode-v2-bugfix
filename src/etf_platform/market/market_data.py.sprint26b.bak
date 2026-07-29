@@ -1,17 +1,14 @@
 from datetime import datetime
 
-from etf_platform.config.universe_loader import ETFUniverse
-
 
 class MarketData:
     """
     Market Data Engine
-    Version 0.7
+    Version 0.6
     """
 
     def __init__(self):
         self.last_updated = datetime.now()
-        self._prices = ETFUniverse().prices()
 
     def nifty50(self):
         return 25250.35
@@ -29,7 +26,15 @@ class MarketData:
         return "POSITIVE"
 
     def etf_price(self, symbol):
-        return self._prices.get(symbol.upper(), 0.00)
+        prices = {
+            "MON100": 340.50,
+            "NIFTYBEES": 284.15,
+            "BANKBEES": 612.75,
+            "GOLDBEES": 82.45,
+            "CPSEETF": 71.20,
+        }
+
+        return prices.get(symbol.upper(), 0.00)
 
     def last_update(self):
         return self.last_updated.strftime("%d-%m-%Y %H:%M:%S")

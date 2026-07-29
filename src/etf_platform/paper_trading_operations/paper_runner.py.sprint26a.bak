@@ -19,7 +19,6 @@ import signal
 
 from etf_platform.common.logging_setup import configure_logging, get_logger
 from etf_platform.config_manager.config_manager import ConfigManager
-from etf_platform.config.universe_loader import ETFUniverse
 from etf_platform.execution_manager import (
     ExecutionStateStore,
     InMemoryEventRecorder,
@@ -41,7 +40,16 @@ logger = get_logger("paper_trading_operations.paper_runner")
 TELEGRAM_BOT_TOKEN_SECRET_NAME = "telegram_bot_token"
 TELEGRAM_CHAT_ID_SECRET_NAME = "telegram_chat_id"
 
-DEFAULT_BASE_PRICES = ETFUniverse().prices()
+DEFAULT_BASE_PRICES = {
+    # Illustrative starting prices for local paper-mode development only --
+    # NOT sourced from any live quote, NOT verified against real market
+    # data. Overridable via the base_prices constructor argument.
+    "NIFTYBEES": 250.0,
+    "GOLDBEES": 60.0,
+    "BANKBEES": 500.0,
+    "JUNIORBEES": 700.0,
+    "LIQUIDBEES": 1000.0,
+}
 
 
 class PaperStartupValidationError(Exception):
