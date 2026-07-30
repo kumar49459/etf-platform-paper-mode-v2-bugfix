@@ -1,0 +1,8 @@
+services:
+  etf-platform:
+    build: .
+    container_name: etf-platform
+    working_dir: /app
+    environment:
+      PYTHONPATH: /app/src
+    command: pytest -q

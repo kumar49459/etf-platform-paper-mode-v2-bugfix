@@ -1,65 +1,37 @@
-On branch feature/dashboard
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-	modified:   .gitignore
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.db
 
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	data/
-	logs/
-	src/etf_platform.egg-info/
-	src/etf_platform/__pycache__/
-	src/etf_platform/ai/__pycache__/
-	src/etf_platform/ai_allocation/__pycache__/
-	src/etf_platform/analytics/__pycache__/
-	src/etf_platform/application/__pycache__/
-	src/etf_platform/backtesting/__pycache__/
-	src/etf_platform/common/__pycache__/
-	src/etf_platform/comparison/__pycache__/
-	src/etf_platform/config/__pycache__/
-	src/etf_platform/config_manager/__pycache__/
-	src/etf_platform/cost_tax_engine/__pycache__/
-	src/etf_platform/dashboard/__pycache__/
-	src/etf_platform/data_engine/__pycache__/
-	src/etf_platform/data_engine/providers/__pycache__/
-	src/etf_platform/data_engine/storage/__pycache__/
-	src/etf_platform/data_quality/__pycache__/
-	src/etf_platform/etf_optimizer/__pycache__/
-	src/etf_platform/execution/__pycache__/
-	src/etf_platform/execution_manager/__pycache__/
-	src/etf_platform/historical_validation/__pycache__/
-	src/etf_platform/importer/__pycache__/
-	src/etf_platform/market/__pycache__/
-	src/etf_platform/market/adapters/__pycache__/
-	src/etf_platform/paper_trading_operations/__pycache__/
-	src/etf_platform/performance_analytics/__pycache__/
-	src/etf_platform/portfolio/__pycache__/
-	src/etf_platform/portfolio_optimizer/__pycache__/
-	src/etf_platform/portfolio_optimizer/methods/__pycache__/
-	src/etf_platform/production/__pycache__/
-	src/etf_platform/reporting/__pycache__/
-	src/etf_platform/risk_management/__pycache__/
-	src/etf_platform/secrets_manager/__pycache__/
-	src/etf_platform/services/__pycache__/
-	src/etf_platform/session/__pycache__/
-	src/etf_platform/smart/__pycache__/
-	src/etf_platform/strategy/__pycache__/
-	src/etf_platform/strategy_engine/__pycache__/
-	src/etf_platform/strategy_engine/execution_policy/__pycache__/
-	src/etf_platform/system/__pycache__/
-	src/etf_platform/validation/__pycache__/
-	src/etf_platform/workflow/__pycache__/
-	tests/__pycache__/
-	tests/analytics/__pycache__/
-	tests/comparison/__pycache__/
-	tests/importer/__pycache__/
-	tests/integration/__pycache__/
-	tests/portfolio/__pycache__/
-	tests/reporting/__pycache__/
-	tests/session/__pycache__/
-	tests/smart/__pycache__/
-	tests/strategy/__pycache__/
-	tests/unit/__pycache__/
+# Virtual Environment
+.venv/
+venv/
 
-no changes added to commit (use "git add" and/or "git commit -a")
+# Environment
+.env
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Python cache
+.pytest_cache/
+.mypy_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+
+# Build
+build/
